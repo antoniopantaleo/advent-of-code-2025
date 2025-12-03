@@ -11,12 +11,20 @@ var passwordCount = 0
 
 for line in input.components(separatedBy: .whitespacesAndNewlines) {
     let regex = /(?<direction>[LR])(?<amount>[0-9]+)/
-    if let match = line.wholeMatch(of: regex) {
-        let sign = match.output.direction == "L" ? -1 : 1
-        let amount = Int(match.output.amount)!
-        current = mod((current + (sign * amount)), total)
-        if current == 0 { passwordCount += 1}
+    guard let match = line.wholeMatch(of: regex) else { continue }
+    let sign = match.output.direction == "L" ? -1 : 1
+    let amount = Int(match.output.amount)!
+    let isGoingLeft = (sign == -1)
+    let distanceToZero: Int
+    if isGoingLeft {
+        distanceToZero = (current == 0) ? total : current
+    } else {
+        distanceToZero = (current == 0) ? total : (total - current)
     }
+    if amount >= distanceToZero {
+        passwordCount += 1 + (amount - distanceToZero) / total
+    }
+    current = mod((current + (sign * amount)), total)
 }
 
 print(passwordCount)
